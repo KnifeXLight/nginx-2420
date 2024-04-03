@@ -35,10 +35,10 @@ sudo pacman -S nginx
 
 #### Step 4:
 
-Create the root directory for your project.
+Create the root directory for your project (*NOT HOME DIRECTORY*).
 
 ```bash
-mkdir -p web/html/nginx-2420
+sudo mkdir -p web/html/nginx-2420
 ```
 
 This is where your website documents will be stored. For this demo, we will be using the following HTML document:
@@ -76,7 +76,16 @@ This is where your website documents will be stored. For this demo, we will be u
 
 #### Step 5:
 
-Copy and paste the above document into `./nginx-2420/index.html` however you could also use SFTP or another file transfer tool to upload this document.
+Copy and paste the below document into `/web/html/nginx-2420/index.html` however you could also use SFTP or another file transfer tool to upload this document.
+
+```bash
+
+# First create a file in /web/html/nginx-2420/
+sudo touch index.html
+
+# Then write the above text into the file
+sudo vim index.html
+```
 
 #### At this stage, the nginx server is set but needs to be configured.
 
@@ -118,13 +127,15 @@ server {
     # IP address the server is running on
     server_name "<your_server_ip>";
 
-    # Point nginx to the created root directory
-    root /home/"<usr>"/web/html/nginx-2420;
-    # Point nginx to the desired index page filename
+    # Point to the created root directory
+    root /web/html/nginx-2420;
+    # Point to the desired index page filename
     index index.php index.html index.htm;
 
     # Location block for handling requests
-    # Attempt to serve URIs by first looking for an exact match of the filename. If that does not exist, try serving it as a directory by appending a trailing slash. If neither the filename nor directory exist, return a 404
+    # Attempt to serve URIs by first looking for an exact match of the filename.
+    #If that does not exist, try serving it as a directory by appending a trailing slash.
+    #If neither the filename nor directory exist, return a 404
     location / {
         try_files $uri $uri/ =404;
     }
@@ -139,6 +150,19 @@ In order for the server to run, we must create a symbolic link from the `sites-a
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/nginx-2420.conf /etc/nginx/sites-enabled/nginx-2420.conf
+```
+
+#### Step 5:
+
+We need to include the sites-enabled linked files to the `nginx.conf` in order to communicate available sites that can be accessed.
+
+Add the following into the end of the html block of `/etc/nginx/nginx.conf`:
+
+```bash
+http {
+    ...
+    include sites-enabled/*;
+}
 ```
 
 ---
@@ -201,13 +225,13 @@ This system file ensures that nginx is run as a forking service, with commands f
 
 ### Running nginx
 
-Run the following command to reload the systemctl daemon and apply the changes:
+Run the following command to reload the systemd daemon and apply the changes:
 
 ```bash
 sudo systemctl daemon-reload
 ```
 
-Run the following command to start the nginx service:
+Run the following command to start nginx:
 
 ```bash
 sudo systemctl start nginx
@@ -223,4 +247,6 @@ sudo systemctl enable nginx
 
 ## Final Result
 
+**URL:** `"http://146.190.162.123/index.html"`
 
+![Alt text](image.png)
